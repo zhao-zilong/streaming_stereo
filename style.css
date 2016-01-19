@@ -1,6 +1,9 @@
+/* #audio{ */
+/* 	visibility: hidden; */
+/* } */
 
-#video{
-    position: relative;
+#video1{
+	position: relative;
     left:5px;
     width: 500px;
     height: 500px;
