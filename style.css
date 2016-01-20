@@ -7,10 +7,12 @@
     left:5px;
     width: 500px;
     height: 500px;
+		-webkit-transform: scale(-1, 1);
 }
 #video2{
     position: relative;
     left: 0px;
     width: 500px;
     height: 500px;
+		-webkit-transform: scale(-1, 1);
 }
