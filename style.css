@@ -1,6 +1,6 @@
-/* #audio{ */
-/* 	visibility: hidden; */
-/* } */
+#audio{
+	visibility: hidden;
+}
 
 #video1{
 	position: relative;

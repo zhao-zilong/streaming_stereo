@@ -39,23 +39,27 @@ if (typeof MediaStreamTrack.getSources == 'undefined') {
   MediaStreamTrack.getSources(gotSources);
 }
 
+function successCallback0(stream) {
 
-function successCallback(stream) {
+}
+
+function successCallback1(stream) {
   window.stream = stream; // make stream available to console
   videoElement.src = window.URL.createObjectURL(stream);
-  videoElement2.src = window.URL.createObjectURL(stream);
   //videoElement.play();
 }
+
+function successCallback2(stream) {
+	  window.stream = stream; // make stream available to console
+	  videoElement2.src = window.URL.createObjectURL(stream);
+	  //videoElement.play();
+	}
 
 function errorCallback(error) {
   console.log('navigator.getUserMedia error: ', error);
 }
 
 function audio() {
-  if (window.stream) {
-    videoElement.src = null;
-    window.stream.stop();
-  }
   var audioSource = audioSelect.value;
   var constraints = {
     audio: {
@@ -64,13 +68,13 @@ function audio() {
       }]
     }
   };
-  navigator.getUserMedia(constraints, successCallback, errorCallback);
+  navigator.getUserMedia(constraints, successCallback0, errorCallback);
 }
 
 function video() {
 	  if (window.stream) {
 	    videoElement.src = null;
-	    window.stream.stop();
+	    window.stream.stop;
 	  }
 	  var videoSource = videoSelect.value;
 	  var constraints = {
@@ -80,13 +84,13 @@ function video() {
 	      }]
 	    }
 	  };
-	  navigator.getUserMedia(constraints, successCallback, errorCallback);
+	  navigator.getUserMedia(constraints, successCallback1, errorCallback);
 }
 
 function video2() {
 	  if (window.stream) {
-	    videoElement.src = null;
-	    window.stream.stop();
+	    videoElement2.src = null;
+	    window.stream.stop;
 	  }
 	  var videoSource = videoSelect2.value;
 	  var constraints = {
@@ -96,10 +100,10 @@ function video2() {
 	      }]
 	    }
 	  };
-	  navigator.getUserMedia(constraints, successCallback, errorCallback);
+	  navigator.getUserMedia(constraints, successCallback2, errorCallback);
 }
 
-//audioSelect.onchange = audio;
+audioSelect.onchange = audio;
 videoSelect.onchange = video;
 videoSelect2.onchange = video2;
 
