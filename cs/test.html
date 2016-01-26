@@ -191,12 +191,31 @@
       var pc = new webkitRTCPeerConnection(iceServer);
 
 
+      function send(message) {
+          waitForConnection(function () {
+          webSocket.send(message);
+          }, 1000);
+        };
+           function waitForConnection(callback, interval) {
+          if (webSocket.readyState === 1) {
+            callback();
+          } else {
+          //var that = this;
+          // optional: implement backoff for interval here
+          setTimeout(function () {
+              waitForConnection(callback, interval);
+          }, interval);
+        }
+      };
+
+
+
 
       // 发送offer和answer的函数，发送本地session描述
       var sendOfferFn = function(desc){
 
           pc.setLocalDescription(desc);
-          webSocket.send(JSON.stringify({
+          send(JSON.stringify({
               "event": "_offer",
               "data": {
                   "sdp": desc
@@ -206,7 +225,7 @@
 
       pc.onicecandidate = function(event){
           if (event.candidate !== null) {
-              webSocket.send(JSON.stringify({
+              send(JSON.stringify({
                   "event": "_ice_candidate",
                   "data": {
                       "candidate": event.candidate
