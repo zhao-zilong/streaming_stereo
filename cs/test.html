@@ -1,0 +1,379 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>RI</title>
+
+<!-- CSS -->
+<link rel="stylesheet" type="text/css" href="style.css" />
+
+
+</head>
+
+<body>
+  <body>
+    <input type="submit" value="clientLogin" onclick="start()">
+    <!-- <div id="messages">
+    </div>
+    <video id="remoteVideo" autoplay></video>
+   <video id="localVideo" autoplay></video> -->
+  </body>
+<div id="container">
+  <div class="select" id="audio">
+    <label for="audioSource">Audio source: </label>
+    <select id="audioSource"></select>
+  </div>
+
+  <div class="select">
+    <label for="videoSource">Camera 1: </label>
+    <select id="videoSource"></select>
+    <label for="videoSource2">Camera 2: </label>
+    <select id="videoSource2"></select>
+  </div>
+</div>
+
+
+</body>
+
+  <video id="video1" muted autoplay></video>
+  <video id="video2" muted autoplay></video>
+
+  <script type="text/javascript">
+  var videoElement = document.querySelector('#video1');
+  var videoElement2 = document.querySelector('#video2');
+
+  var audioSelect = document.querySelector('select#audioSource');
+  var videoSelect = document.querySelector('select#videoSource');
+  var videoSelect2 = document.querySelector('select#videoSource2');
+
+  navigator.getUserMedia =  navigator.getUserMedia
+  						||navigator.webkitGetUserMedia
+  						||navigator.mozGetUserMedia;
+
+  function gotSources(sourceInfos) {
+    for (var i = 0; i !== sourceInfos.length; ++i) {
+      var sourceInfo = sourceInfos[i];
+      var option = document.createElement('option');
+      var option2 = document.createElement('option');
+      option.value = sourceInfo.id;
+      option2.value = sourceInfo.id;
+      if (sourceInfo.kind == 'audio') {
+        option.text = sourceInfo.label || 'microphone ' + (audioSelect.length + 1);
+        audioSelect.appendChild(option);
+      }
+      else if (sourceInfo.kind == 'video') {
+        option.text = sourceInfo.label || 'camera ' + (videoSelect.length + 1);
+        videoSelect.appendChild(option);
+        option2.text = sourceInfo.label || 'camera ' + (videoSelect2.length + 1);
+        videoSelect2.appendChild(option2);
+      }
+  //    else {
+  //      console.log('Some other kind of source: ', sourceInfo);
+  //    }
+    }
+  }
+
+  if (typeof MediaStreamTrack.getSources == 'undefined') {
+    alert('This browser does not support MediaStreamTrack.\n\nTry Chrome.');
+  } else {
+    MediaStreamTrack.getSources(gotSources);
+  }
+
+  function successCallback0(stream) {
+
+  }
+
+  function successCallback1(stream) {
+    window.stream = stream; // make stream available to console
+    videoElement.src = window.URL.createObjectURL(stream);
+    //videoElement.play();
+  }
+
+  function successCallback2(stream) {
+  	  window.stream = stream; // make stream available to console
+  	  videoElement2.src = window.URL.createObjectURL(stream);
+  	  //videoElement.play();
+  	}
+
+  function errorCallback(error) {
+    console.log('navigator.getUserMedia error: ', error);
+  }
+
+  function audio() {
+    var audioSource = audioSelect.value;
+    var constraints = {
+      audio: {
+        optional: [{
+          sourceId: audioSource
+        }]
+      }
+    };
+    navigator.getUserMedia(constraints, successCallback0, errorCallback);
+  }
+
+  function video() {
+  	  if (window.stream) {
+  	    videoElement.src = null;
+  	    window.stream.stop;
+  	  }
+  	  var videoSource = videoSelect.value;
+  	  var constraints = {
+  	    video: {
+  	      optional: [{
+  	        sourceId: videoSource
+  	      }]
+  	    }
+  	  };
+  	  navigator.getUserMedia(constraints, successCallback1, errorCallback);
+  }
+
+  function video2() {
+  	  if (window.stream) {
+  	    videoElement2.src = null;
+  	    window.stream.stop;
+  	  }
+  	  var videoSource = videoSelect2.value;
+  	  var constraints = {
+  	    video: {
+  	      optional: [{
+  	        sourceId: videoSource
+  	      }]
+  	    }
+  	  };
+  	  navigator.getUserMedia(constraints, successCallback2, errorCallback);
+  }
+
+  audioSelect.onchange = audio;
+  videoSelect.onchange = video;
+  videoSelect2.onchange = video2;
+
+  audio();
+  video();
+  video2();
+
+
+
+
+
+
+
+  function onOpen(event) {
+    document.getElementById('messages').innerHTML
+      = 'Connection established';
+  }
+
+  function onError(event) {
+       document.getElementById('messages').innerHTML
+          += '<br/>'+event.data;
+  }
+
+
+  function start() {
+      var webSocket =new WebSocket("ws://130.190.55.237:5566");
+      webSocket.onopen = function(event) {
+        onOpen(event);
+      };
+
+      webSocket.onerror = function(event) {
+            onError(event);
+      };
+      webSocket.onclose=function(event){
+          //document.getElementById('messages').innerHTML
+          //+= '<br/>'+str(event.data);
+          alert(event.data)
+      }
+      var iceServer = {
+              "iceServers": [{
+                  "url": "stun:stun.l.google.com:19302"
+              }]
+          };
+      // 创建PeerConnection实例 (参数为null则没有iceserver，即使没有stunserver和turnserver，仍可在局域网下通讯)
+      var pc = new webkitRTCPeerConnection(iceServer);
+
+
+
+      // 发送offer和answer的函数，发送本地session描述
+      var sendOfferFn = function(desc){
+
+          pc.setLocalDescription(desc);
+          webSocket.send(JSON.stringify({
+              "event": "_offer",
+              "data": {
+                  "sdp": desc
+              }
+          }));
+      };
+
+      pc.onicecandidate = function(event){
+          if (event.candidate !== null) {
+              webSocket.send(JSON.stringify({
+                  "event": "_ice_candidate",
+                  "data": {
+                      "candidate": event.candidate
+                  }
+              }));
+          }
+      };
+
+      var newstream = new webkitMediaStream();
+      function remotevideo() {
+      	  if (window.stream) {
+      	    videoElement2.src = null;
+      	    window.stream.stop;
+      	  }
+      	  var videoSource = videoSelect.value;
+      	  var constraints = {
+      	    video: {
+      	      optional: [{
+      	        sourceId: videoSource
+      	      }]
+      	    }
+      	  };
+      	  navigator.getUserMedia(constraints, successCallback3, errorCallback);
+      }
+      function successCallback3(stream) {
+        //newstream = stream;
+        //pc.addStream(stream);
+        //如果是发起方则发送一个offer信令
+        // pc.createOffer(sendOfferFn, function (error) {
+        //        console.log('Failure callback: ' + error);
+        //     });
+        newstream.addTrack(stream.getVideoTracks()[0]);
+      	}
+
+
+      function remotevideo1() {
+      	  if (window.stream) {
+      	    videoElement2.src = null;
+      	    window.stream.stop;
+      	  }
+      	  var videoSource = videoSelect2.value;
+      	  var constraints = {
+      	    video: {
+      	      optional: [{
+      	        sourceId: videoSource
+      	      }]
+      	    }
+      	  };
+      	  navigator.getUserMedia(constraints, successCallback4, errorCallback);
+      }
+      function successCallback4(stream) {
+        // var localstream = pc.getLocalStreams();
+        // localstream[0].addTrack(localstream[1]);
+        // localstream[0].addTrack(stream.getVideoTracks()[0]);
+        // pc.addStream(localstream[0]);
+        //window.localstream = window.localstream.addTrack(stream.getVideoTracks()[0]);
+      //  stream.getVideoTracks()[0].enabled = true;
+        newstream.addTrack(stream.getVideoTracks()[0]);
+        var k = newstream.getTracks().length;
+        pc.addStream(newstream);
+        //如果是发起方则发送一个offer信令
+        pc.createOffer(sendOfferFn, function (error) {
+               console.log('Failure callback: ' + error);
+            });
+      	}
+      remotevideo();
+      remotevideo1();
+
+
+
+
+      //      function sendvideo() {
+      //        	  if (window.stream) {
+      //             videoElement.src = null;
+      //        	    videoElement2.src = null;
+      //        	    window.stream.stop;
+      //        	  }
+      //      var videoSource = videoSelect.value;
+      //      var videoSource2 = videoSelect2.value;
+      //      navigator.getUserMedia({
+      //        video: {
+      //        optional: [{
+      //          sourceId: videoSource
+      //        }]
+      //      } }, function (stream) {
+      //          // Set your video displays
+      // //         window.localStream = new webkitMediaStream();
+      // //         window.localStream.addTrack(stream.getVideoTracks()[0]);
+      //           pc.addStream(stream);
+      //           var localStream = stream.getVideoTracks();
+      //      navigator.getUserMedia({
+      //            video: {
+      //    	      optional: [{
+      //    	        sourceId: videoSource2
+      //    	      }]
+      //    	    } }, function (stream2) {
+      // //             window.localStream.addTrack(stream2.getVideoTracks()[0]);
+      //
+      //              // Set your video displays
+      //              //_this._step2();
+      //              //var localStream = stream2.getVideoTracks();
+      //              stream2.addTrack(localStream[0]);
+      //              pc.addStream(stream2);
+      //          }, function(error){
+      //              //处理媒体流创建失败错误
+      //              console.log('getUserMedia error: ' + error);
+      //          });
+      //      }, function(error){
+      //          //处理媒体流创建失败错误
+      //          console.log('getUserMedia error: ' + error);
+      //      });
+      //  }
+      //       sendvideo();
+
+
+
+
+
+
+
+   // 获取本地音频和视频流
+      // navigator.webkitGetUserMedia({
+      //     "audio": true,
+      //     "video": {
+    	//       optional: [{
+    	//         sourceId: videoSelect.value
+    	//       }]
+    	//     }
+      // }, function(stream){
+      //     //绑定本地媒体流到video标签用于输出
+      //    //document.getElementById('localVideo').src = URL.createObjectURL(stream);
+      //     //向PeerConnection中加入需要发送的流
+      //
+      //     pc.addStream(stream);
+      //     //如果是发起方则发送一个offer信令
+      //     pc.createOffer(sendOfferFn, function (error) {
+      //            console.log('Failure callback: ' + error);
+      //         });
+      // }, function(error){
+      //     //处理媒体流创建失败错误
+      //     console.log('getUserMedia error: ' + error);
+      // });
+
+      //处理到来的信令
+      webSocket.onmessage = function(event){
+          //alert(event.data);
+          //document.getElementById('messages').innerHTML
+         // += '<br/>'+event.data;
+          var jsonstr="'"+event.data+"'";
+          var json = JSON.parse(event.data);
+
+          console.log('onmessage: ', json);
+
+          //如果是一个ICE的候选，则将其加入到PeerConnection中，否则设定对方的session描述为传递过来的描述
+          if( json.event == "_ice_candidate" ){
+
+              pc.addIceCandidate(new RTCIceCandidate(json.data.candidate));
+          } else {
+              //接收到确认符号
+              if(json.event == "_answer"){
+                  pc.setRemoteDescription(new RTCSessionDescription(json.data.sdp),function(){},function(){});
+                   // 发送ICE候选到其他客户端
+              }
+          }
+      };
+  }
+  </script>
+
+
+</html>

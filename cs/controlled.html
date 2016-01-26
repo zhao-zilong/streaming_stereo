@@ -1,0 +1,124 @@
+<html>
+  <head>
+    <title>client</title>
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+    <meta http-equiv="description" content="This is my page">
+    <!--
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    -->
+    <script type="text/javascript">
+        function onOpen(event) {
+          document.getElementById('messages').innerHTML
+            = 'Connection established';
+        }
+
+        function onError(event) {
+             document.getElementById('messages').innerHTML
+                += '<br/>'+event.data;
+        }
+
+
+        function start() {
+            var webSocket =new WebSocket("ws://192.168.1.19:5566");
+            webSocket.onopen = function(event) {
+              onOpen(event);
+            };
+
+            webSocket.onerror = function(event) {
+                  onError(event);
+            };
+            webSocket.onclose=function(event){
+                //document.getElementById('messages').innerHTML
+                //+= '<br/>'+str(event.data);
+                alert(event.data)
+            }
+            var iceServer = {
+                    "iceServers": [{
+                        "url": "stun:stun.l.google.com:19302"
+                    }]
+                };
+            // 创建PeerConnection实例 (参数为null则没有iceserver，即使没有stunserver和turnserver，仍可在局域网下通讯)
+            var pc = new webkitRTCPeerConnection(iceServer);
+
+
+
+            // 发送offer和answer的函数，发送本地session描述
+            var sendOfferFn = function(desc){
+
+                pc.setLocalDescription(desc);
+                webSocket.send(JSON.stringify({
+                    "event": "_offer",
+                    "data": {
+                        "sdp": desc
+                    }
+                }));
+            };
+
+            pc.onicecandidate = function(event){
+                if (event.candidate !== null) {
+                    webSocket.send(JSON.stringify({
+                        "event": "_ice_candidate",
+                        "data": {
+                            "candidate": event.candidate
+                        }
+                    }));
+                }
+            };
+
+
+         // 获取本地音频和视频流
+            navigator.webkitGetUserMedia({
+                "audio": true,
+                "video": true
+            }, function(stream){
+                //绑定本地媒体流到video标签用于输出
+               //document.getElementById('localVideo').src = URL.createObjectURL(stream);
+                //向PeerConnection中加入需要发送的流
+
+                pc.addStream(stream);
+                //如果是发起方则发送一个offer信令
+                pc.createOffer(sendOfferFn, function (error) {
+                       console.log('Failure callback: ' + error);
+                    });
+            }, function(error){
+                //处理媒体流创建失败错误
+                console.log('getUserMedia error: ' + error);
+            });
+
+            //处理到来的信令
+            webSocket.onmessage = function(event){
+                //alert(event.data);
+                //document.getElementById('messages').innerHTML
+               // += '<br/>'+event.data;
+                var jsonstr="'"+event.data+"'";
+                var json = JSON.parse(event.data);
+
+                console.log('onmessage: ', json);
+
+                //如果是一个ICE的候选，则将其加入到PeerConnection中，否则设定对方的session描述为传递过来的描述
+                if( json.event == "_ice_candidate" ){
+
+                    pc.addIceCandidate(new RTCIceCandidate(json.data.candidate));
+                } else {
+                    //接收到确认符号
+                    if(json.event == "_answer"){
+                        pc.setRemoteDescription(new RTCSessionDescription(json.data.sdp),function(){},function(){});
+                         // 发送ICE候选到其他客户端
+                    }
+                }
+            };
+        }
+    </script>
+  </head>
+
+  <body>
+    <input type="submit" value="clientLogin" onclick="start()">
+    <div id="messages">
+    </div>
+    <video id="remoteVideo" autoplay></video>
+   <video id="localVideo" autoplay></video>
+  </body>
+</html>
