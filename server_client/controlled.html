@@ -22,7 +22,7 @@
 
 
         function start() {
-            var webSocket =new WebSocket("ws://192.168.1.81:5566");  
+            var webSocket =new WebSocket("ws://192.168.1.19:5566");
             webSocket.onopen = function(event) {
               onOpen(event);
             };
@@ -77,6 +77,7 @@
                 //绑定本地媒体流到video标签用于输出
                //document.getElementById('localVideo').src = URL.createObjectURL(stream);
                 //向PeerConnection中加入需要发送的流
+
                 pc.addStream(stream);
                 //如果是发起方则发送一个offer信令
                 pc.createOffer(sendOfferFn, function (error) {
