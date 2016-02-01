@@ -24,7 +24,7 @@
                 += '<br/>'+event.data;
         }
         function start() {
-            var webSocket =new WebSocket("ws://130.190.55.237:5566");
+            var webSocket =new WebSocket("ws://172.20.10.6:5566");
 
             webSocket.onopen = function(event) {
               onOpen(event);
@@ -44,17 +44,17 @@
                         "url": "stun:stun.l.google.com:19302"
                     }]
                 };
-            // 创建PeerConnection实例 (参数为null则没有iceserver，即使没有stunserver和turnserver，仍可在局域网下通讯)
+            // åˆ›å»ºPeerConnectionå®žä¾‹ (å�‚æ•°ä¸ºnullåˆ™æ²¡æœ‰iceserverï¼Œå�³ä½¿æ²¡æœ‰stunserverå’Œturnserverï¼Œä»�å�¯åœ¨å±€åŸŸç½‘ä¸‹é€šè®¯)
             var pc = new webkitRTCPeerConnection(iceServer);
 
-            // 发送ICE候选到其他客户端
+            // å�‘é€�ICEå€™é€‰åˆ°å…¶ä»–å®¢æˆ·ç«¯
 
 
-            // 如果检测到媒体流连接到本地，将其绑定到一个video标签上输出
+            // å¦‚æžœæ£€æµ‹åˆ°åª’ä½“æµ�è¿žæŽ¥åˆ°æœ¬åœ°ï¼Œå°†å…¶ç»‘å®šåˆ°ä¸€ä¸ªvideoæ ‡ç­¾ä¸Šè¾“å‡º
             var remoteMedia1 = new webkitMediaStream();
             var remoteMedia2 = new webkitMediaStream();
             pc.onaddstream = function(event){
-                //alert("检测到流");
+                //alert("æ£€æµ‹åˆ°æµ�");
                 event.stream.getVideoTracks()[0].enabled = true;
                 event.stream.getVideoTracks()[1].enabled = true;
                 remoteMedia1.addTrack(event.stream.getVideoTracks()[0]);
@@ -89,7 +89,7 @@
 
 
 
-            // 发送offer和answer的函数，发送本地session描述
+            // å�‘é€�offerå’Œanswerçš„å‡½æ•°ï¼Œå�‘é€�æœ¬åœ°sessionæ��è¿°
             /*var sendOfferFn = function(desc){
 
                 alert(desc.sdp)
@@ -125,27 +125,27 @@
                 }));
             };
 
-            // 获取本地音频和视频流
+            // èŽ·å�–æœ¬åœ°éŸ³é¢‘å’Œè§†é¢‘æµ�
            /* navigator.webkitGetUserMedia({
                 "audio": true,
                 "video": true
             }, function(stream){
-                //绑定本地媒体流到video标签用于输出
+                //ç»‘å®šæœ¬åœ°åª’ä½“æµ�åˆ°videoæ ‡ç­¾ç”¨äºŽè¾“å‡º
                // document.getElementById('localVideo').src = URL.createObjectURL(stream);
-                //向PeerConnection中加入需要发送的流
+                //å�‘PeerConnectionä¸­åŠ å…¥éœ€è¦�å�‘é€�çš„æµ�
                 pc.addStream(stream);
-                //如果是发起方则发送一个offer信令
+                //å¦‚æžœæ˜¯å�‘èµ·æ–¹åˆ™å�‘é€�ä¸€ä¸ªofferä¿¡ä»¤
 
                 pc.createOffer(sendOfferFn, function (error) {
                    console.log('Failure callback: ' + error);
                 });
 
             }, function(error){
-                //处理媒体流创建失败错误
+                //å¤„ç�†åª’ä½“æµ�åˆ›å»ºå¤±è´¥é”™è¯¯
                 console.log('getUserMedia error: ' + error);
             });
             */
-            //处理到来的信令
+            //å¤„ç�†åˆ°æ�¥çš„ä¿¡ä»¤
             webSocket.onmessage = function(event){
                 //alert(event.data)
                 //document.getElementById('messages').innerHTML
@@ -153,10 +153,10 @@
                 var jsonstr="'"+event.data+"'"
                 var json = JSON.parse(event.data);
                 console.log('onmessage: ', json);
-                //如果是一个ICE的候选，则将其加入到PeerConnection中，否则设定对方的session描述为传递过来的描述
+                //å¦‚æžœæ˜¯ä¸€ä¸ªICEçš„å€™é€‰ï¼Œåˆ™å°†å…¶åŠ å…¥åˆ°PeerConnectionä¸­ï¼Œå�¦åˆ™è®¾å®šå¯¹æ–¹çš„sessionæ��è¿°ä¸ºä¼ é€’è¿‡æ�¥çš„æ��è¿°
 
                 if( json.event == "_ice_candidate" ){
-                    //alert("收到候选");
+                    //alert("æ”¶åˆ°å€™é€‰");
                     pc.addIceCandidate(new RTCIceCandidate(json.data.candidate));
 
                 } else {
@@ -189,7 +189,7 @@
                    //pc.setRemoteDescription(new RTCSessionDescription(pc.SDP_OFFER,json.data.sdp));
                    //pc.SDP_OFFER
                     //pc.setRemoteDescription(pc.SDP_OFFER,new SessionDescription(json.data.sdp.sdp));
-                    // 如果是一个offer，那么需要回复一个answer
+                    // å¦‚æžœæ˜¯ä¸€ä¸ªofferï¼Œé‚£ä¹ˆéœ€è¦�å›žå¤�ä¸€ä¸ªanswer
                    /* if(json.event == "_offer") {
                         alert(json.event)
                         pc.createAnswer(sendAnswerFn, function (error) {
