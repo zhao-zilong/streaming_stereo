@@ -24,7 +24,7 @@
                 += '<br/>'+event.data;
         }
         function start() {
-            var webSocket =new WebSocket("ws://172.20.10.6:5566");
+            var webSocket =new WebSocket("ws://130.190.52.87:5566");
 
             webSocket.onopen = function(event) {
               onOpen(event);
@@ -51,20 +51,18 @@
 
 
             // å¦‚æžœæ£€æµ‹åˆ°åª’ä½“æµ�è¿žæŽ¥åˆ°æœ¬åœ°ï¼Œå°†å…¶ç»‘å®šåˆ°ä¸€ä¸ªvideoæ ‡ç­¾ä¸Šè¾“å‡º
-            var remoteMedia1 = new webkitMediaStream();
-            var remoteMedia2 = new webkitMediaStream();
+
             pc.onaddstream = function(event){
                 //alert("æ£€æµ‹åˆ°æµ�");
-
-                if(remoteMedia1.getTracks().length > 0)
-                {
-                  remoteMedia1.removeTrack(remoteMedia1.getTracks()[0]);
-                  remoteMedia2.removeTrack(remoteMedia2.getTracks()[0]);
-                }
-                else {
-                  event.stream.getVideoTracks()[0].enabled = true;
-                  event.stream.getVideoTracks()[1].enabled = true;
-                }
+                var remoteMedia1 = new webkitMediaStream();
+                var remoteMedia2 = new webkitMediaStream();
+                event.stream.getVideoTracks()[0].enabled = true;
+                event.stream.getVideoTracks()[1].enabled = true;
+                // if(remoteMedia1.getTracks().length > 0)
+                // {
+                //   remoteMedia1.removeTrack(remoteMedia1.getTracks()[0]);
+                //   remoteMedia2.removeTrack(remoteMedia2.getTracks()[0]);
+                // }
                 remoteMedia1.addTrack(event.stream.getVideoTracks()[0]);
                 remoteMedia2.addTrack(event.stream.getVideoTracks()[1]);
                 document.getElementById('remoteVideo').src = URL.createObjectURL(remoteMedia1);
