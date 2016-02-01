@@ -10,7 +10,9 @@ function onOpen(event) {
 
 
   function start() {
-      var webSocket =new WebSocket("ws://172.20.10.6:5566");
+      if(webSocket === undefined)
+        {var webSocket =new WebSocket("ws://172.20.10.6:5566");}
+
       webSocket.onopen = function(event) {
         onOpen(event);
       };
@@ -23,13 +25,16 @@ function onOpen(event) {
           //+= '<br/>'+str(event.data);
           alert(event.data)
       }
-      var iceServer = {
+      if(iceServer === undefined){
+        var iceServer = {
               "iceServers": [{
                   "url": "stun:stun.l.google.com:19302"
               }]
           };
+      }
       // 创建PeerConnection实例 (参数为null则没有iceserver，即使没有stunserver和turnserver，仍可在局域网下通讯)
-      var pc = new webkitRTCPeerConnection(iceServer);
+      if(pc === undefined)
+        {var pc = new webkitRTCPeerConnection(iceServer);}
 
 
       function send(message) {
@@ -37,7 +42,7 @@ function onOpen(event) {
           webSocket.send(message);
           }, 1000);
         };
-        
+
      function waitForConnection(callback, interval) {
           if (webSocket.readyState === 1) {
             callback();
@@ -75,12 +80,12 @@ function onOpen(event) {
       };
 
       var newstream = new webkitMediaStream();
-      
+
       function remotevideo() {
-      	  if (window.stream) {
-      	    videoElement.src = null;
-      	    window.stream.stop;
-      	  }
+      	  // if (window.stream) {
+      	  //   videoElement.src = null;
+      	  //   window.stream.stop;
+      	  // }
       	  var videoSource = videoSelect.value;
       	  var constraints = {
       	    video: {
@@ -91,17 +96,17 @@ function onOpen(event) {
       	  };
       	  navigator.getUserMedia(constraints, successCallback3, errorCallback);
       }
-      
+
       function successCallback3(stream) {
     	  newstream.addTrack(stream.getVideoTracks()[0]);
       }
 
 
       function remotevideo1() {
-      	  if (window.stream) {
-      	    videoElement2.src = null;
-      	    window.stream.stop;
-      	  }
+      	  // if (window.stream) {
+      	  //   videoElement2.src = null;
+      	  //   window.stream.stop;
+      	  // }
       	  var videoSource = videoSelect2.value;
       	  var constraints = {
       	    video: {
@@ -113,7 +118,7 @@ function onOpen(event) {
       	  navigator.getUserMedia(constraints, successCallback4, errorCallback);
       }
       function successCallback4(stream) {
-    	  
+
         newstream.addTrack(stream.getVideoTracks()[0]);
         var k = newstream.getTracks().length;
         pc.addStream(newstream);
@@ -122,7 +127,7 @@ function onOpen(event) {
                console.log('Failure callback: ' + error);
             });
       }
-      
+
       remotevideo();
       remotevideo1();
 
