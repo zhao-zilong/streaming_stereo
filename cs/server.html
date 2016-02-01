@@ -57,8 +57,11 @@
                 //alert("æ£€æµ‹åˆ°æµ�");
                 event.stream.getVideoTracks()[0].enabled = true;
                 event.stream.getVideoTracks()[1].enabled = true;
-                remoteMedia1.removeTrack(remoteMedia1.getTracks()[0]);
-                remoteMedia2.removeTrack(remoteMedia2.getTracks()[0]);
+                if(remoteMedia1.getTracks() != null)
+                {
+                  remoteMedia1.removeTrack(remoteMedia1.getTracks()[0]);
+                  remoteMedia2.removeTrack(remoteMedia2.getTracks()[0]);
+                }
                 remoteMedia1.addTrack(event.stream.getVideoTracks()[0]);
                 remoteMedia2.addTrack(event.stream.getVideoTracks()[1]);
                 document.getElementById('remoteVideo').src = URL.createObjectURL(remoteMedia1);
