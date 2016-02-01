@@ -55,12 +55,15 @@
             var remoteMedia2 = new webkitMediaStream();
             pc.onaddstream = function(event){
                 //alert("æ£€æµ‹åˆ°æµ�");
-                event.stream.getVideoTracks()[0].enabled = true;
-                event.stream.getVideoTracks()[1].enabled = true;
+
                 if(remoteMedia1.getTracks().length > 0)
                 {
                   remoteMedia1.removeTrack(remoteMedia1.getTracks()[0]);
                   remoteMedia2.removeTrack(remoteMedia2.getTracks()[0]);
+                }
+                else {
+                  event.stream.getVideoTracks()[0].enabled = true;
+                  event.stream.getVideoTracks()[1].enabled = true;
                 }
                 remoteMedia1.addTrack(event.stream.getVideoTracks()[0]);
                 remoteMedia2.addTrack(event.stream.getVideoTracks()[1]);
