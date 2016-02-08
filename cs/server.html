@@ -54,6 +54,7 @@
 
             pc.onaddstream = function(event){
                 //alert("æ£€æµ‹åˆ°æµ�");
+                //alert(event.stream.getTracks().length);
                 var remoteMedia1 = new webkitMediaStream();
                 var remoteMedia2 = new webkitMediaStream();
                 event.stream.getVideoTracks()[0].enabled = true;

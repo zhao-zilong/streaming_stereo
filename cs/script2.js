@@ -8,12 +8,20 @@ function onOpen(event) {
           += '<br/>'+event.data;
   }
 
+  var newstream = new webkitMediaStream();
+      //var flag = true;
+      // var webSocket =new WebSocket("ws://130.190.52.87:5566");
+  var iceServer = {
+            "iceServers": [{
+                "url": "stun:stun.l.google.com:19302"
+            }]
+        };
+
 
   function start() {
-      if(webSocket === undefined)
-        {var webSocket =new WebSocket("ws://172.20.10.6:5566");}
 
-      webSocket.onopen = function(event) {
+      var webSocket =new WebSocket("ws://172.20.10.6:5566");
+        webSocket.onopen = function(event) {
         onOpen(event);
       };
 
@@ -25,16 +33,17 @@ function onOpen(event) {
           //+= '<br/>'+str(event.data);
           alert(event.data)
       }
-      if(iceServer === undefined){
-        var iceServer = {
-              "iceServers": [{
-                  "url": "stun:stun.l.google.com:19302"
-              }]
-          };
-      }
-      // 创建PeerConnection实例 (参数为null则没有iceserver，即使没有stunserver和turnserver，仍可在局域网下通讯)
-      if(pc === undefined)
-        {var pc = new webkitRTCPeerConnection(iceServer);}
+
+      //   var iceServer = {
+      //         "iceServers": [{
+      //             "url": "stun:stun.l.google.com:19302"
+      //         }]
+      //     };
+      //
+      //
+      // // 创建PeerConnection实例 (参数为null则没有iceserver，即使没有stunserver和turnserver，仍可在局域网下通讯)
+      //
+       var pc = new webkitRTCPeerConnection(iceServer);
 
 
       function send(message) {
@@ -57,6 +66,7 @@ function onOpen(event) {
 
 
       // 发送offer和answer的函数，发送本地session描述
+
       var sendOfferFn = function(desc){
 
           pc.setLocalDescription(desc);
@@ -79,7 +89,7 @@ function onOpen(event) {
           }
       };
 
-      var newstream = new webkitMediaStream();
+
 
       function remotevideo() {
       	  // if (window.stream) {
@@ -99,6 +109,7 @@ function onOpen(event) {
 
       function successCallback3(stream) {
     	  newstream.addTrack(stream.getVideoTracks()[0]);
+
       }
 
 
@@ -120,16 +131,22 @@ function onOpen(event) {
       function successCallback4(stream) {
 
         newstream.addTrack(stream.getVideoTracks()[0]);
-        var k = newstream.getTracks().length;
+        //var k = newstream.getTracks().length;
+        //alert(newstream.getTracks().length);
+
         pc.addStream(newstream);
         //如果是发起方则发送一个offer信令
+
+
         pc.createOffer(sendOfferFn, function (error) {
                console.log('Failure callback: ' + error);
             });
+        //pc.addStream(newstream);
       }
 
       remotevideo();
       remotevideo1();
+
 
       //处理到来的信令
       webSocket.onmessage = function(event){
