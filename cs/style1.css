@@ -5,12 +5,18 @@
 #remoteVideo{
 	position: relative;
     left:5px;
-    width: 500px;
-    height: 500px;
+    width: 700px;
+    height: 700px;
+    -ms-transform: rotate(-90deg); /* IE 9 */
+    -webkit-transform: rotate(-90deg); /* Safari */
+    transform: rotate(-90deg);
 }
 #remoteVideo1{
     position: relative;
-    left: 0px;
-    width: 500px;
-    height: 500px;
+    left: 20px;
+    width: 700px;
+    height: 700px;
+    -ms-transform: rotate(90deg); /* IE 9 */
+    -webkit-transform: rotate(90deg); /* Safari */
+    transform: rotate(90deg);
 }
