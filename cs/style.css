@@ -2,15 +2,22 @@
 	visibility: hidden;
 }
 
+
 #video1{
 	position: relative;
     left:5px;
     width: 500px;
     height: 500px;
+    -ms-transform: rotate(-90deg); /* IE 9 */
+    -webkit-transform: rotate(-90deg); /* Safari */
+    transform: rotate(-90deg);
 }
 #video2{
     position: relative;
     left: 0px;
     width: 500px;
     height: 500px;
+    -ms-transform: rotate(90deg); /* IE 9 */
+    -webkit-transform: rotate(90deg); /* Safari */
+    transform: rotate(90deg);
 }
