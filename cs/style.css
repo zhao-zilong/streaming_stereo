@@ -2,9 +2,12 @@
 	visibility: hidden;
 }
 
+body{
+	background-color: black;
+}
 
 #video1{
-	position: relative;
+/* 	position: relative; */
     left:5px;
     width: 500px;
     height: 500px;
@@ -13,8 +16,8 @@
     transform: rotate(-90deg);
 }
 #video2{
-    position: relative;
-    left: 0px;
+    position: absolute;
+    left: 384px;
     width: 500px;
     height: 500px;
     -ms-transform: rotate(90deg); /* IE 9 */
