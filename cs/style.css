@@ -17,7 +17,7 @@ body{
 }
 #video2{
     position: absolute;
-    left: 384px;
+    left: 390px;
     width: 500px;
     height: 500px;
     -ms-transform: rotate(90deg); /* IE 9 */
