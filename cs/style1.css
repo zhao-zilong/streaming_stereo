@@ -2,6 +2,9 @@
 	visibility: hidden;
 }
 
+body{
+	background-color: black;
+}
 #remoteVideo{
 /* 	position: relative; */
     left:5px;
