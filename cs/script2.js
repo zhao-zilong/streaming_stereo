@@ -20,7 +20,7 @@ function onOpen(event) {
 
   function start() {
 
-      var webSocket =new WebSocket("ws://172.20.10.6:5566");
+      var webSocket =new WebSocket("ws://192.168.1.19:5566");
         webSocket.onopen = function(event) {
         onOpen(event);
       };
