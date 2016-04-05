@@ -2,7 +2,7 @@
 
 ###websocket-server.js
 
-A webserver realised by websocket, it's used to exchange the configurations of two ends, then the two ends use P2P
+A webserver realised by websocket, it's used to exchange the configurations of two ends, then the two ends use P2P, for using this server, please go to folder cs, there is a module which is indispensable pour websocket-server.js
 
 ###Folder cs:
 
