@@ -6,8 +6,8 @@ var server = http.createServer(function(request, response) {
     // process HTTP request. Since we're writing just WebSockets server
     // we don't have to implement anything.
 });
-server.listen(5566, function() {
-  console.log((new Date()) + " Server is listening on port 5566");
+server.listen(5568, function() {
+  console.log((new Date()) + " Server is listening on port 5568");
 });
 
 // create the server

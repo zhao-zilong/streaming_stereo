@@ -20,7 +20,7 @@ function onOpen(event) {
 
   function start() {
 
-      var webSocket =new WebSocket("ws://192.168.1.19:5566");
+      var webSocket =new WebSocket("ws://192.168.1.11:5568");
         webSocket.onopen = function(event) {
         onOpen(event);
       };
@@ -65,10 +65,37 @@ function onOpen(event) {
       };
 
 
+
+      // function setSDPStereo(sdp) {
+      //     var sdpLines = sdp.split('\r\n');
+      //     var fmtpLineIndex = null;
+      //     for (var i = 0; i < sdpLines.length; i++) {
+      //         if (sdpLines[i].search('opus/48000') !== -1) {
+      //             var opusPayload = extractSdp(sdpLines[i], /:(\d+) opus\/48000/i);
+      //             break;
+      //         }
+      //     }
+      //     for (var i = 0; i < sdpLines.length; i++) {
+      //         if (sdpLines[i].search('a=fmtp') !== -1) {
+      //             var payload = extractSdp(sdpLines[i], /a=fmtp:(\d+)/ );
+      //             if (payload === opusPayload) {
+      //                 fmtpLineIndex = i;
+      //                 break;
+      //             }
+      //         }
+      //     }
+      //     if (fmtpLineIndex === null) return sdp;
+      //    sdpLines[fmtpLineIndex] = sdpLines[fmtpLineIndex].concat('; stereo=1; sprop-stereo=1');
+      //     sdp = sdpLines.join('\r\n');
+      //     return sdp;
+      // }
+      // function extractSdp(sdpLine, pattern) {
+      //   var result = sdpLine.match(pattern);
+      //   return result && result.length === 2 ? result[1] : null;
+      // }
       // 发送offer和answer的函数，发送本地session描述
-
       var sendOfferFn = function(desc){
-
+  //        desc.sdp = setSDPStereo(desc.sdp);
           pc.setLocalDescription(desc);
           send(JSON.stringify({
               "event": "_offer",
@@ -77,6 +104,33 @@ function onOpen(event) {
               }
           }));
       };
+      var sendAnswerFn = function(desc){
+          //desc.sdp = setSDPStereo(desc.sdp);
+          pc.setLocalDescription(desc);
+          webSocket.send(JSON.stringify({
+              "event": "_answer",
+              "data": {
+                  "sdp": desc
+              }
+          }));
+      };
+
+
+      pc.ondatachannel = function(event){
+        console.trace('Receive Channel Callback');
+        pc = event.channel;
+        pc.onmessage = onReceiveMessageCallback;
+      }
+        function onReceiveMessageCallback(event){
+        console.trace('Received Message: '+event.data);
+        //dataChannelReceive.value = event.data;
+      }
+
+
+
+
+
+
 
       pc.onicecandidate = function(event){
           if (event.candidate !== null) {
@@ -88,6 +142,7 @@ function onOpen(event) {
               }));
           }
       };
+
 
 
 
@@ -109,6 +164,8 @@ function onOpen(event) {
 
       function successCallback3(stream) {
     	  newstream.addTrack(stream.getVideoTracks()[0]);
+//          pc.addStream(stream);
+//        alert("video1");
 
       }
 
@@ -131,9 +188,6 @@ function onOpen(event) {
       function successCallback4(stream) {
 
         newstream.addTrack(stream.getVideoTracks()[0]);
-        //var k = newstream.getTracks().length;
-        //alert(newstream.getTracks().length);
-
         pc.addStream(newstream);
         //如果是发起方则发送一个offer信令
 
@@ -141,11 +195,50 @@ function onOpen(event) {
         pc.createOffer(sendOfferFn, function (error) {
                console.log('Failure callback: ' + error);
             });
-        //pc.addStream(newstream);
+//        alert("video2");
+        //var k = newstream.getTracks().length;
+        //alert(newstream.getTracks().length);
+
+
       }
+
+      // function remoteaudio() {
+      //   var audioSource = audioSelect.value;
+      //   var constraints = {
+      //     audio: {
+      //     //   mandatory:
+      //     //   {
+      //     //     echoCancellation:false,
+      //     //     googEchoCancellation:false,
+      //     //     stereo:true,
+      //     // //    arc:opus/48000,
+      //     //   },
+      //       optional: [{
+      //         sourceId: audioSource
+      //       }]
+      //     }
+      //   };
+      //   navigator.getUserMedia(constraints, successCallback5, errorCallback);
+      // }
+      //
+      // function successCallback5(stream) {
+      //   newstream.addTrack(stream.getAudioTracks()[0]);
+      //   pc.addStream(newstream);
+      //   //如果是发起方则发送一个offer信令
+      //
+      //
+      //   pc.createOffer(sendOfferFn, function (error) {
+      //          console.log('Failure callback: ' + error);
+      //       });
+      //   //pc.addStream(newstream);
+      //
+      //
+      // }
+
 
       remotevideo();
       remotevideo1();
+      // remoteaudio();
 
 
       //处理到来的信令

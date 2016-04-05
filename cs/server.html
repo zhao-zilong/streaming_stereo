@@ -23,8 +23,12 @@
              document.getElementById('messages').innerHTML
                 += '<br/>'+event.data;
         }
+
+
+        var pc;
+        var sendChannel;
         function start() {
-            var webSocket =new WebSocket("ws://192.168.1.19:5566");
+            var webSocket =new WebSocket("ws://130.190.55.231:5568");
 
             webSocket.onopen = function(event) {
               onOpen(event);
@@ -45,7 +49,12 @@
                     }]
                 };
             // åˆ›å»ºPeerConnectionå®žä¾‹ (å�‚æ•°ä¸ºnullåˆ™æ²¡æœ‰iceserverï¼Œå�³ä½¿æ²¡æœ‰stunserverå’Œturnserverï¼Œä»�å�¯åœ¨å±€åŸŸç½‘ä¸‹é€šè®¯)
-            var pc = new webkitRTCPeerConnection(iceServer);
+            pc = new webkitRTCPeerConnection(iceServer);
+            //sendChannel = pc.createDataChannel('sendDataChannel');
+            //console.trace('create send data channel');
+           // 发送ICE候选到其他客户端
+           //sendChannel.onopen = onSendChannelStateChange;
+           //sendChannel.onclose = onSendChannelStateChange;
 
             // å�‘é€�ICEå€™é€‰åˆ°å…¶ä»–å®¢æˆ·ç«¯
 
@@ -55,19 +64,23 @@
             pc.onaddstream = function(event){
                 //alert("æ£€æµ‹åˆ°æµ�");
                 //alert(event.stream.getTracks().length);
-                var remoteMedia1 = new webkitMediaStream();
-                var remoteMedia2 = new webkitMediaStream();
-                event.stream.getVideoTracks()[0].enabled = true;
-                event.stream.getVideoTracks()[1].enabled = true;
-                // if(remoteMedia1.getTracks().length > 0)
-                // {
-                //   remoteMedia1.removeTrack(remoteMedia1.getTracks()[0]);
-                //   remoteMedia2.removeTrack(remoteMedia2.getTracks()[0]);
-                // }
-                remoteMedia1.addTrack(event.stream.getVideoTracks()[0]);
-                remoteMedia2.addTrack(event.stream.getVideoTracks()[1]);
-                document.getElementById('remoteVideo').src = URL.createObjectURL(remoteMedia1);
-                document.getElementById('remoteVideo1').src = URL.createObjectURL(remoteMedia2);
+               var remoteMedia1 = new webkitMediaStream();
+               var remoteMedia2 = new webkitMediaStream();
+              // var remoteMedia3 = new webkitMediaStream();
+               event.stream.getVideoTracks()[0].enabled = true;
+               event.stream.getVideoTracks()[1].enabled = true;
+              // event.stream.getAudioTracks()[0].enabled = true;
+
+
+               remoteMedia1.addTrack(event.stream.getVideoTracks()[0]);
+               remoteMedia2.addTrack(event.stream.getVideoTracks()[1]);
+              // remoteMedia3.addTrack(event.stream.getAudioTracks()[0]);
+               document.getElementById('remoteVideo').src = URL.createObjectURL(remoteMedia1);
+               document.getElementById('remoteVideo1').src = URL.createObjectURL(remoteMedia2);
+              // document.getElementById('remoteAudio').src = URL.createObjectURL(remoteMedia3);
+                // var sound = new Audio(event.stream.getAudioTracks()[0]);
+                // sound.play();
+
             };
 
 
@@ -95,22 +108,40 @@
 
 
 
+            function send(message) {
+                waitForConnection(function () {
+                webSocket.send(message);
+                }, 1000);
+              };
 
+           function waitForConnection(callback, interval) {
+                if (webSocket.readyState === 1) {
+                  callback();
+                } else {
+                //var that = this;
+                // optional: implement backoff for interval here
+                setTimeout(function () {
+                    waitForConnection(callback, interval);
+                }, interval);
+              }
+            };
             // å�‘é€�offerå’Œanswerçš„å‡½æ•°ï¼Œå�‘é€�æœ¬åœ°sessionæ��è¿°
-            /*var sendOfferFn = function(desc){
+            var sendOfferFn = function(desc){
 
                 alert(desc.sdp)
                 //pc.setRemoteDescription(desc);
                // pc.setLocalDescription(desc);
 
-                webSocket.send(JSON.stringify({
+                send(JSON.stringify({
                     "event": "_offer",
                     "data": {
                         "sdp": desc
                     }
                 }));
-            };*/
-
+            };
+            // pc.createOffer(sendOfferFn, function (error) {
+            //           console.log('Failure callback: ' + error);
+            //         });
             pc.onicecandidate = function(event){
                 if (event.candidate !== null) {
                     webSocket.send(JSON.stringify({
@@ -121,8 +152,10 @@
                     }));
                 }
             };
-            var sendAnswerFn = function(desc){
 
+
+            var sendAnswerFn = function(desc){
+                //desc.sdp = setSDPStereo(desc.sdp);
                 pc.setLocalDescription(desc);
                 webSocket.send(JSON.stringify({
                     "event": "_answer",
@@ -170,7 +203,7 @@
 
                    if(json.event == "_offer") {
                        pc.setRemoteDescription(new RTCSessionDescription(json.data.sdp),function(){
-                       //pc.setRemoteDescription(null,function(){
+                       //pc.setRemoteDescription(null,function()
                            pc.createAnswer(sendAnswerFn, function (error) {
                                 alert(error);
                                 console.log('Failure callback: ' + error);
@@ -209,16 +242,19 @@
             };
         }
 
+
     </script>
   </head>
 
   <body>
     <input type="submit" value="Adminlogin" onclick="start()">
+    <!-- <input type="submit" value="send" onclick="sendData()"> -->
     <div id="messages">
     </div>
     <video id="remoteVideo" autoplay="autoplay"></video>
     <video id="remoteVideo1" autoplay="autoplay"></video>
-    <video id="localVideo" autoplay></video>
+    <!-- <video id="localVideo" autoplay></video> -->
+    <!-- <audio id="remoteAudio" autoplay="autoplay" controls></audio> -->
 
   </body>
 </html>

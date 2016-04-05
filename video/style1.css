@@ -1,0 +1,28 @@
+#audio{
+	visibility: hidden;
+}
+
+body{
+	background-color: black;
+}
+#remoteVideo{
+/* 	position: relative; */
+		position: absolute;
+		left:50px;
+		top: 200px;
+		width: 700px;
+		height: 600px;
+    -ms-transform: rotate(90deg); /* IE 9 */
+    -webkit-transform: rotate(90deg); /* Safari */
+    transform: rotate(90deg);
+}
+#remoteVideo1{
+    position: absolute;
+		left: 680px;
+		top: 200px;
+    width: 700px;
+    height: 600px;
+    -ms-transform: rotate(-90deg); /* IE 9 */
+    -webkit-transform: rotate(-90deg); /* Safari */
+    transform: rotate(-90deg);
+}

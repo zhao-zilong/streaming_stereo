@@ -1,0 +1,260 @@
+<html>
+  <head>
+    <title>server</title>
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="keywords" content="keyword1,keyword2,keyword3">
+    <meta http-equiv="description" content="This is my page">
+    <!--
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    -->
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="style1.css" />
+    <script type="text/javascript">
+
+
+        function onOpen(event) {
+          document.getElementById('messages').innerHTML
+            = 'Connection established';
+        }
+
+        function onError(event) {
+             document.getElementById('messages').innerHTML
+                += '<br/>'+event.data;
+        }
+
+
+        var pc;
+        var sendChannel;
+        function start() {
+            var webSocket =new WebSocket("ws://192.168.1.81:5567");
+
+            webSocket.onopen = function(event) {
+              onOpen(event);
+            };
+
+            webSocket.onerror = function(event) {
+                  onError(event);
+            };
+
+            webSocket.onclose=function(event){
+                //document.getElementById('messages').innerHTML
+                //+= '<br/>'+str(event.data);
+                alert(event.data);
+            }
+             var iceServer = {
+                    "iceServers": [{
+                        "url": "stun:stun.l.google.com:19302"
+                    }]
+                };
+            // åˆ›å»ºPeerConnectionå®žä¾‹ (å�‚æ•°ä¸ºnullåˆ™æ²¡æœ‰iceserverï¼Œå�³ä½¿æ²¡æœ‰stunserverå’Œturnserverï¼Œä»�å�¯åœ¨å±€åŸŸç½‘ä¸‹é€šè®¯)
+            pc = new webkitRTCPeerConnection(iceServer);
+            //sendChannel = pc.createDataChannel('sendDataChannel');
+            //console.trace('create send data channel');
+           // 发送ICE候选到其他客户端
+           //sendChannel.onopen = onSendChannelStateChange;
+           //sendChannel.onclose = onSendChannelStateChange;
+
+            // å�‘é€�ICEå€™é€‰åˆ°å…¶ä»–å®¢æˆ·ç«¯
+
+
+            // å¦‚æžœæ£€æµ‹åˆ°åª’ä½“æµ�è¿žæŽ¥åˆ°æœ¬åœ°ï¼Œå°†å…¶ç»‘å®šåˆ°ä¸€ä¸ªvideoæ ‡ç­¾ä¸Šè¾“å‡º
+
+            pc.onaddstream = function(event){
+                //alert("æ£€æµ‹åˆ°æµ�");
+                //alert(event.stream.getTracks().length);
+               var remoteMedia1 = new webkitMediaStream();
+               var remoteMedia2 = new webkitMediaStream();
+              // var remoteMedia3 = new webkitMediaStream();
+               event.stream.getVideoTracks()[0].enabled = true;
+               event.stream.getVideoTracks()[1].enabled = true;
+              // event.stream.getAudioTracks()[0].enabled = true;
+
+
+               remoteMedia1.addTrack(event.stream.getVideoTracks()[0]);
+               remoteMedia2.addTrack(event.stream.getVideoTracks()[1]);
+              // remoteMedia3.addTrack(event.stream.getAudioTracks()[0]);
+               document.getElementById('remoteVideo').src = URL.createObjectURL(remoteMedia1);
+               document.getElementById('remoteVideo1').src = URL.createObjectURL(remoteMedia2);
+              // document.getElementById('remoteAudio').src = URL.createObjectURL(remoteMedia3);
+                // var sound = new Audio(event.stream.getAudioTracks()[0]);
+                // sound.play();
+
+            };
+
+
+            // remoteMedia.onaddtrack = function (evt) {
+            //         console.log("New remote track added");
+            //         // omitted: check to see if video track exists first before doing this
+            //         remoteMedia.getVideoTracks()[0].enabled = true;
+            //     };
+            //
+            // pc.onaddstream = function (evt) {
+            //     console.log("New stream added");
+            //     var remoteMediaStream = evt.stream;
+            //     if (remoteMedia == null) {
+            //         remoteMedia     = remoteMediaStream;
+            //         remoteVideo     = document.getElementById('remoteVideo');//avCaptureUtil.createVideoElement(toUri);
+            //         remoteVideo.src = window.URL.createObjectURL(remoteMedia);
+            //     }
+            //     else {
+            //         remoteMedia.addTrack(remoteMediaStream.getVideoTracks()[0]); //add the video track to the existing stream
+            //     }
+            //   }
+
+
+
+
+
+
+            function send(message) {
+                waitForConnection(function () {
+                webSocket.send(message);
+                }, 1000);
+              };
+
+           function waitForConnection(callback, interval) {
+                if (webSocket.readyState === 1) {
+                  callback();
+                } else {
+                //var that = this;
+                // optional: implement backoff for interval here
+                setTimeout(function () {
+                    waitForConnection(callback, interval);
+                }, interval);
+              }
+            };
+            // å�‘é€�offerå’Œanswerçš„å‡½æ•°ï¼Œå�‘é€�æœ¬åœ°sessionæ��è¿°
+            var sendOfferFn = function(desc){
+
+                alert(desc.sdp)
+                //pc.setRemoteDescription(desc);
+               // pc.setLocalDescription(desc);
+
+                send(JSON.stringify({
+                    "event": "_offer",
+                    "data": {
+                        "sdp": desc
+                    }
+                }));
+            };
+            // pc.createOffer(sendOfferFn, function (error) {
+            //           console.log('Failure callback: ' + error);
+            //         });
+            pc.onicecandidate = function(event){
+                if (event.candidate !== null) {
+                    webSocket.send(JSON.stringify({
+                        "event": "_ice_candidate",
+                        "data": {
+                            "candidate": event.candidate
+                        }
+                    }));
+                }
+            };
+
+
+            var sendAnswerFn = function(desc){
+                //desc.sdp = setSDPStereo(desc.sdp);
+                pc.setLocalDescription(desc);
+                webSocket.send(JSON.stringify({
+                    "event": "_answer",
+                    "data": {
+                        "sdp": desc
+                    }
+                }));
+            };
+
+            // èŽ·å�–æœ¬åœ°éŸ³é¢‘å’Œè§†é¢‘æµ�
+           /* navigator.webkitGetUserMedia({
+                "audio": true,
+                "video": true
+            }, function(stream){
+                //ç»‘å®šæœ¬åœ°åª’ä½“æµ�åˆ°videoæ ‡ç­¾ç”¨äºŽè¾“å‡º
+               // document.getElementById('localVideo').src = URL.createObjectURL(stream);
+                //å�‘PeerConnectionä¸­åŠ å…¥éœ€è¦�å�‘é€�çš„æµ�
+                pc.addStream(stream);
+                //å¦‚æžœæ˜¯å�‘èµ·æ–¹åˆ™å�‘é€�ä¸€ä¸ªofferä¿¡ä»¤
+
+                pc.createOffer(sendOfferFn, function (error) {
+                   console.log('Failure callback: ' + error);
+                });
+
+            }, function(error){
+                //å¤„ç�†åª’ä½“æµ�åˆ›å»ºå¤±è´¥é”™è¯¯
+                console.log('getUserMedia error: ' + error);
+            });
+            */
+            //å¤„ç�†åˆ°æ�¥çš„ä¿¡ä»¤
+            webSocket.onmessage = function(event){
+                //alert(event.data)
+                //document.getElementById('messages').innerHTML
+                //+= '<br/>'+event.data;
+                var jsonstr="'"+event.data+"'"
+                var json = JSON.parse(event.data);
+                console.log('onmessage: ', json);
+                //å¦‚æžœæ˜¯ä¸€ä¸ªICEçš„å€™é€‰ï¼Œåˆ™å°†å…¶åŠ å…¥åˆ°PeerConnectionä¸­ï¼Œå�¦åˆ™è®¾å®šå¯¹æ–¹çš„sessionæ��è¿°ä¸ºä¼ é€’è¿‡æ�¥çš„æ��è¿°
+
+                if( json.event == "_ice_candidate" ){
+                    //alert("æ”¶åˆ°å€™é€‰");
+                    pc.addIceCandidate(new RTCIceCandidate(json.data.candidate));
+
+                } else {
+
+                   if(json.event == "_offer") {
+                       pc.setRemoteDescription(new RTCSessionDescription(json.data.sdp),function(){
+                       //pc.setRemoteDescription(null,function()
+                           pc.createAnswer(sendAnswerFn, function (error) {
+                                alert(error);
+                                console.log('Failure callback: ' + error);
+                            });
+                       },function(){
+                            alert("error");
+                            pc.createAnswer(sendAnswerFn, function (error) {
+                                alert("error");
+                                console.log('Failure callback: ' + error);
+                            });
+                        });
+
+                   }
+
+                   //  pc.setRemoteDescription(new RTCSessionDescription(json.data.sdp,function(){
+                    //  alert(1);
+                    //}));
+                   //  if (isRTCPeerConnection)
+                    //  pc.setRemoteDescription(new RTCSessionDescription(json.data.sdp));
+                  // else
+                   //   pc.setRemoteDescription(pc.SDP_OFFER,
+                    //        new SessionDescription(json.data.sdp.sdp));
+                   //pc.setRemoteDescription(new RTCSessionDescription(pc.SDP_OFFER,json.data.sdp));
+                   //pc.SDP_OFFER
+                    //pc.setRemoteDescription(pc.SDP_OFFER,new SessionDescription(json.data.sdp.sdp));
+                    // å¦‚æžœæ˜¯ä¸€ä¸ªofferï¼Œé‚£ä¹ˆéœ€è¦�å›žå¤�ä¸€ä¸ªanswer
+                   /* if(json.event == "_offer") {
+                        alert(json.event)
+                        pc.createAnswer(sendAnswerFn, function (error) {
+                            document.getElementById('messages').innerHTML
+                            += '<br/>'+error;
+                            console.log('Failure callback: ' + error);
+                        });
+                    }*/
+                }
+            };
+        }
+
+
+    </script>
+  </head>
+
+  <body>
+    <input type="submit" value="Adminlogin" onclick="start()">
+    <input type="submit" value="send" onclick="sendData()">
+    <div id="messages">
+    </div>
+    <video id="remoteVideo" autoplay="autoplay"></video>
+    <video id="remoteVideo1" autoplay="autoplay"></video>
+    <!-- <video id="localVideo" autoplay></video> -->
+    <!-- <audio id="remoteAudio" autoplay="autoplay" controls></audio> -->
+
+  </body>
+</html>

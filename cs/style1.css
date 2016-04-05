@@ -2,9 +2,9 @@
 	visibility: hidden;
 }
 
-body{
+/*body{
 	background-color: black;
-}
+}*/
 #remoteVideo{
 /* 	position: relative; */
 		position: absolute;
@@ -14,7 +14,7 @@ body{
 		height: 600px;
     -ms-transform: rotate(90deg); /* IE 9 */
     -webkit-transform: rotate(90deg); /* Safari */
-    transform: rotate(90deg);
+    transform: rotate(270deg);
 }
 #remoteVideo1{
     position: absolute;
@@ -24,5 +24,5 @@ body{
     height: 600px;
     -ms-transform: rotate(-90deg); /* IE 9 */
     -webkit-transform: rotate(-90deg); /* Safari */
-    transform: rotate(-90deg);
+    transform: rotate(-270deg);
 }
