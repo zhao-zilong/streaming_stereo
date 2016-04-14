@@ -9,8 +9,7 @@ function onOpen(event) {
   }
 
   var newstream = new webkitMediaStream();
-      //var flag = true;
-      // var webSocket =new WebSocket("ws://130.190.52.87:5566");
+
   var iceServer = {
             "iceServers": [{
                 "url": "stun:stun.l.google.com:19302"
@@ -20,7 +19,7 @@ function onOpen(event) {
 
   function start() {
 
-      var webSocket =new WebSocket("ws://192.168.1.11:5567");
+      var webSocket =new WebSocket("ws://192.168.1.10:5567");
         webSocket.onopen = function(event) {
         onOpen(event);
       };
