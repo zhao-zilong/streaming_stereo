@@ -14,5 +14,11 @@ For sending the data catched in port 50000 where on put the informations de rota
 
 ###Folder stereo
 
-For sending an audio on stereo from a client to a server
+For sending an audio on stereo from a client to a server 
+
+# order of starting this program
+
+1. Start websocket-server.js by command 'node websocket-server.js'
+2. Open client.html and server.html in Chrome, login in server first, then connect client
+
 
