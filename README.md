@@ -18,7 +18,8 @@ For sending an audio on stereo from a client to a server
 
 # order of starting this program
 
-1. Start websocket-server.js by command 'node websocket-server.js'
+1. Start websocket-server.js by command 'node websocket-server.js'(if you want to test stereo effect, you have to start another websocket server too, like 'node websocket-server1.js')
 2. Open client.html and server.html in Chrome, login in server first, then connect client
+
 
 
