@@ -1,5 +1,9 @@
 # streaming_stereo
 
+## Condition of this program
+All my code is running perfectly in OS X El Capitan, the program of obtaining the rotation information of Oculus Rift tested only in Xcode, the type of Arduino is Arduino Uno, all files html have to run under server appache.
+
+
 ###websocket-server.js
 
 A webserver realised by websocket, it's used to exchange the configurations of two ends, then the two ends use P2P, for using this server, please go to folder cs, there is a module which is indispensable pour websocket-server.js
