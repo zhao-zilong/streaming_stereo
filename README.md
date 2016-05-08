@@ -32,6 +32,8 @@ Connect two cameras and microphones to client's computer, connect Arduino uno an
 
 ### A short video to show the resultat
 https://www.youtube.com/watch?v=LneAnyqop7w
+### A powerpoint to see more this project
+http://air.imag.fr/images/6/67/Soutenance_ZHAO_HAMMOUTI.pdf
 
 
 
