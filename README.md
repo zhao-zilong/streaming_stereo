@@ -1,7 +1,7 @@
 # streaming_stereo
 
 ## Condition of this program
-All these codes can run perfectly in OS X El Capitan, the program of obtaining the rotation information of Oculus Rift tested only in Xcode, the type of Arduino is Arduino Uno, all files html have to run under server appache.
+All these codes can run perfectly in OS X El Capitan, the program of obtaining the rotation information of Oculus Rift tested only in Xcode, the type of Arduino is Arduino Uno, all html files have to run under server appache. For the part of streaming videos, it's realised by WebRTC, so please use chrome to test all html files.
 
 
 ###websocket-server.js
